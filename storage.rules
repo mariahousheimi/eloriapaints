@@ -1,0 +1,13 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /projects/{allPaths=**} {
+      // Allow anyone to read project images
+      allow read: if true;
+      // Only allow authenticated admin to upload/delete project images
+      allow write: if request.auth != null && 
+                    (request.auth.token.email == 'mariahouchaimi8@gmail.com' || 
+                     request.auth.uid == 'TIxDoylRLgVp2LKMuDBpgOCdrKg1');
+    }
+  }
+}

@@ -1,0 +1,40 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,700;1,700&display=swap');
+
+@theme {
+  --color-perla-blue: #010058;
+  --color-perla-cream: #f8f7f2;
+  --color-perla-gold: #c0a058;
+  --color-perla-grey: #a8a8b3;
+  
+  --font-serif: "Playfair Display", serif;
+  --font-sans: "Inter", sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-perla-cream text-perla-blue font-sans;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif font-bold;
+  }
+}
+
+.btn-gold {
+  @apply bg-perla-gold text-white px-8 py-4 rounded-none font-medium transition-all duration-300 hover:bg-perla-blue hover:shadow-lg active:scale-95 uppercase tracking-widest text-sm;
+}
+
+.btn-outline {
+  @apply border border-perla-blue text-perla-blue px-8 py-4 rounded-none font-medium transition-all duration-300 hover:bg-perla-blue hover:text-white uppercase tracking-widest text-sm;
+}
+
+.no-select {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}

@@ -1,0 +1,113 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: consultations
+    // Fields:
+    //   - name: string (required, 1-100 chars)
+    //   - email: string (required, valid email)
+    //   - meetingType: string (required)
+    //   - preferredDate: string (required)
+    //   - message: string (optional, < 1000 chars)
+    //   - status: string (required, enum: pending, contacted, completed)
+    //   - createdAt: timestamp (required)
+    //
+    // Collection: quizResults
+    // Fields:
+    //   - name: string (required, 1-100 chars)
+    //   - email: string (required, valid email)
+    //   - result: string (required)
+    //   - createdAt: timestamp (required)
+    //
+    // Collection: projects
+    // Fields:
+    //   - title: string (required, 1-200 chars)
+    //   - cat: string (required, enum: Residential, Commercial)
+    //   - img: string (required, valid URL)
+    //   - createdAt: timestamp (required)
+    //
+    // Collection: users
+    // Fields:
+    //   - uid: string (required)
+    //   - email: string (required)
+    //   - role: string (required, enum: admin, client)
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (
+          request.auth.token.email == "mariahouchaimi8@gmail.com" ||
+          request.auth.uid == "TIxDoylRLgVp2LKMuDBpgOCdrKg1" ||
+          (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
+        );
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.size() <= 256;
+    }
+
+    function isValidUrl(url) {
+      return url is string && (url.size() < 1048576); // Avoid regex on potentially huge base64 strings
+    }
+
+    // Domain Validators
+    function isValidConsultation(data) {
+      return data.keys().hasAll(['name', 'email', 'meetingType', 'preferredDate', 'status', 'createdAt']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             isValidEmail(data.email) &&
+             data.meetingType is string &&
+             data.preferredDate is string &&
+             data.status in ['pending', 'contacted', 'completed'] &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidQuizResult(data) {
+      return data.keys().hasAll(['name', 'email', 'result', 'createdAt']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             isValidEmail(data.email) &&
+             data.result is string &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidProject(data) {
+      return data.keys().hasAll(['title', 'cat', 'img', 'createdAt']) &&
+             data.title is string && data.title.size() > 0 && data.title.size() <= 200 &&
+             data.cat in ['Residential', 'Commercial'] &&
+             data.img is string && isValidUrl(data.img) &&
+             data.createdAt is timestamp;
+    }
+
+    // Rules
+    match /consultations/{id} {
+      allow create: if isValidConsultation(request.resource.data);
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /quizResults/{id} {
+      allow create: if isValidQuizResult(request.resource.data);
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /projects/{id} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidProject(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /users/{uid} {
+      allow read: if isAuthenticated() && (request.auth.uid == uid || isAdmin());
+      allow create: if isAuthenticated() && request.auth.uid == uid && request.resource.data.role == 'client';
+      allow update: if isAdmin();
+    }
+  }
+}

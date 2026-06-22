@@ -1,0 +1,75 @@
+{
+  "entities": {
+    "consultation": {
+      "title": "Consultation Request",
+      "description": "A request for an architectural consultation.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "meetingType": { "type": "string" },
+        "preferredDate": { "type": "string" },
+        "message": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "contacted", "completed"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "meetingType", "preferredDate", "createdAt"]
+    },
+    "quizResult": {
+      "title": "Color Quiz Result",
+      "description": "A result from the color psychology quiz.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "result": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "result", "createdAt"]
+    },
+    "user": {
+      "title": "User Profile",
+      "description": "A user profile for admin access.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "role": { "type": "string", "enum": ["admin", "client"] }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "project": {
+      "title": "Portfolio Project",
+      "description": "A showcase project for the portfolio.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "cat": { "type": "string", "enum": ["Residential", "Commercial"] },
+        "img": { "type": "string", "format": "uri" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "cat", "img", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/consultations/{id}": {
+      "schema": "consultation",
+      "description": "Collection of consultation requests."
+    },
+    "/quizResults/{id}": {
+      "schema": "quizResult",
+      "description": "Collection of quiz results."
+    },
+    "/users/{uid}": {
+      "schema": "user",
+      "description": "Collection of user profiles."
+    },
+    "/projects/{id}": {
+      "schema": "project",
+      "description": "Collection of portfolio projects."
+    }
+  }
+}
